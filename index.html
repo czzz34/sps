@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stone Paper Scissors Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            margin: 0;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background-color: #3b3f46;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 350px;
+        }
+        h1 {
+            margin-bottom: 15px;
+            color: #61dafb;
+        }
+        .mode-toggle {
+            margin-bottom: 20px;
+        }
+        .player {
+            margin-bottom: 20px;
+        }
+        .player button {
+            margin: 5px;
+            padding: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .player button:hover {
+            background-color: #61dafb;
+            transform: scale(1.1);
+        }
+        #result {
+            margin-top: 10px;
+            font-size: 24px;
+            min-height: 40px;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+        .scoreboard {
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        .scoreboard table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .scoreboard th, .scoreboard td {
+            padding: 8px;
+            text-align: left;
+        }
+        .scoreboard th {
+            background-color: #61dafb;
+        }
+        .scoreboard td {
+            background-color: #4b4f56;
+        }
+        .scoreboard .win, .scoreboard .loss {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+        }
+        .scoreboard .win {
+            color: #28a745;
+        }
+        .scoreboard .loss {
+            color: #dc3545;
+        }
+        .scoreboard .win-count {
+            float: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stone Paper Scissors</h1>
+        <div class="mode-toggle">
+            <label>
+                <input type="radio" name="mode" value="2p" checked onclick="toggleMode('2p')"> 2 Players
+            </label>
+            <label>
+                <input type="radio" name="mode" value="computer" onclick="toggleMode('computer')"> vs Computer
+            </label>
+        </div>
+        <div class="player" id="player1">
+            <h2>Player 1</h2>
+            <button onclick="setPlayerChoice(1, 'stone')">🪨</button>
+            <button onclick="setPlayerChoice(1, 'paper')">📄</button>
+            <button onclick="setPlayerChoice(1, 'scissors')">✂️</button>
+        </div>
+        <div class="player" id="player2">
+            <h2>Player 2</h2>
+            <button onclick="setPlayerChoice(2, 'stone')">🪨</button>
+            <button onclick="setPlayerChoice(2, 'paper')">📄</button>
+            <button onclick="setPlayerChoice(2, 'scissors')">✂️</button>
+        </div>
+        <button onclick="playGame()" style="width: auto; height: auto; padding: 10px 20px; font-size: 18px; border-radius: 5px;">Play!</button>
+        <div id="result"></div>
+        <div class="scoreboard" id="scoreboard">
+            <table>
+                <tr>
+                    <th>Player</th>
+                    <th>Score</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>Player 1</td>
+                    <td id="player1-score"></td>
+                    <td id="player1-win-count" class="win-count">0</td>
+                </tr>
+                <tr>
+                    <td id="player2-name">Player 2</td>
+                    <td id="player2-score"></td>
+                    <td id="player2-win-count" class="win-count">0</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let playerChoices = { 1: null, 2: null };
+        let scores = { player1: [], player2: [] };
+        let mode = '2p'; // default mode is 2 players
+
+        function setPlayerChoice(player, choice) {
+            playerChoices[player] = choice;
+            document.getElementById('result').innerHTML = `Player ${player} chose: ${choice}`;
+        }
+
+        function toggleMode(selectedMode) {
+            mode = selectedMode;
+            if (mode === 'computer') {
+                document.getElementById('player2').style.display = 'none';
+                document.getElementById('player1 h2').innerText = 'You';
+                document.getElementById('player2-name').innerText = 'Computer';
+            } else {
+                document.getElementById('player2').style.display = 'block';
+                document.getElementById('player1 h2').innerText = 'Player 1';
+                document.getElementById('player2-name').innerText = 'Player 2';
+            }
+            resetChoices();
+        }
+
+        function playGame() {
+            const player1Choice = playerChoices[1];
+            let player2Choice = playerChoices[2];
+
+            if (!player1Choice || (mode === '2p' && !player2Choice)) {
+                alert('Both players must make a choice!');
+                return;
+            }
+
+            if (mode === 'computer') {
+                const choices = ['stone', 'paper', 'scissors'];
+                player2Choice = choices[Math.floor(Math.random() * choices.length)];
+                playerChoices[2] = player2Choice;
+                document.getElementById('result').innerHTML = `You chose: ${player1Choice} <br> Computer chose: ${player2Choice} <br>`;
+            } else {
+                document.getElementById('result').innerHTML = `Player 1 chose: ${player1Choice} <br> Player 2 chose: ${player2Choice} <br>`;
+            }
+
+            let result;
+            if (player1Choice === player2Choice) {
+                result = "It's a tie!";
+                scores.player1.push('tie');
+                scores.player2.push('tie');
+            } else if (
+                (player1Choice === 'stone' && player2Choice === 'scissors') ||
+                (player1Choice === 'paper' && player2Choice === 'stone') ||
+                (player1Choice === 'scissors' && player2Choice === 'paper')
+            ) {
+                result = mode === '2p' ? "Player 1 wins!" : "You win!";
+                scores.player1.push('win');
+                scores.player2.push('loss');
+            } else {
+                result = mode === '2p' ? "Player 2 wins!" : "Computer wins!";
+                scores.player1.push('loss');
+                scores.player2.push('win');
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML += result;
+            resultDiv.classList.add('fade-in');
+
+            // Update scoreboard
+            updateScoreboard();
+
+            // Remove the animation class after it ends
+            resultDiv.addEventListener('animationend', () => {
+                resultDiv.classList.remove('fade-in');
+            });
+
+            resetChoices();
+        }
+
+        function resetChoices() {
+            playerChoices = { 1: null, 2: null };
+            document.getElementById('result').innerHTML = '';
+        }
+
+        function updateScoreboard() {
+            const player1Score = document.getElementById('player1-score');
+            const player2Score = document.getElementById('player2-score');
+            const player1WinCount = document.getElementById('player1-win-count');
+            const player2WinCount = document.getElementById('player2-win-count');
+
+            player1Score.innerHTML = '';
+            player2Score.innerHTML = '';
+
+            let player1Wins = 0;
+            let player2Wins = 0;
+
+            scores.player1.forEach(score => {
+                if (score === 'win') {
+                    player1Score.innerHTML += '<span class="win">✔️</span>';
+                    player1Wins++;
+                } else if (score === 'loss') {
+                    player1Score.innerHTML += '<span class="loss">❌</span>';
+                } else {
+                    player1Score.innerHTML += '<span class="tie">➖</span>';
+                }
+            });
+
+            scores.player2.forEach(score => {
+                if (score === 'win') {
+                    player2Score.innerHTML += '<span class="win">✔️</span>';
+                    player2Wins++;
+                } else if (score === 'loss') {
+                    player2Score.innerHTML += '<span class="loss">❌</span>';
+                } else {
+                    player2Score.innerHTML += '<span class="tie">➖</span>';
+                }
+            });
+
+            player1WinCount.innerText = player1Wins;
+            player2WinCount.innerText = player2Wins;
+        }
+    </script>
+</body>
+</html>
